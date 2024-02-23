@@ -2,4 +2,4 @@ dependencies:
   espressif/esp_lcd_st7796: "^1.0.0"
   espressif/esp_lcd_touch_ft5x06: "^1.0.6"
   idf: ">=4.4"
-  lvgl/lvgl: "~8.3.0"
+  lvgl/lvgl: "9.0.0"
