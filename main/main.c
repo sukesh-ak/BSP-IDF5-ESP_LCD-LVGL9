@@ -8,6 +8,7 @@
 #include "esp_lcd_panel_ops.h"
 #include "driver/gpio.h"
 #include "driver/spi_master.h"
+#include <driver/i2c.h>
 #include "esp_err.h"
 #include "esp_log.h"
 #include "lvgl.h"
@@ -24,8 +25,6 @@
 #if CONFIG_HMI_LCD_TOUCH_CONTROLLER_FT5X06
 #include "esp_lcd_touch_ft5x06.h"
 #endif
-#include <driver/i2c.h>
-
 
 static const char *TAG = "HMI";
 
