@@ -1,0 +1,43 @@
+menu "HMI Device Configuration"
+
+    choice HMI_LCD_CONTROLLER
+        prompt "LCD controller model"
+        default HMI_LCD_CONTROLLER_ST7796
+        help
+            Select LCD controller model
+
+        config HMI_LCD_CONTROLLER_ILI9341
+            bool "ILI9341"
+
+        config HMI_LCD_CONTROLLER_GC9A01
+            bool "GC9A01"
+
+        config HMI_LCD_CONTROLLER_ST7796
+            bool "ST7796"
+    endchoice
+
+    config HMI_LCD_TOUCH_ENABLED
+        bool "Enable LCD touch"
+        default n
+        help
+            Enable this option if you wish to use display touch. You can select from touch controllers.
+
+    choice HMI_LCD_TOUCH_CONTROLLER
+        prompt "LCD touch controller model"
+        depends on HMI_LCD_TOUCH_ENABLED
+        default HMI_LCD_TOUCH_CONTROLLER_FT5X06
+        help
+            Select LCD touch controller model
+
+        config HMI_LCD_TOUCH_CONTROLLER_STMPE610
+            bool "STMPE610"
+            help
+                Touch controller STMPE610 connected via SPI.
+        config HMI_LCD_TOUCH_CONTROLLER_FT5X06
+            bool "FT5X06"
+            help
+                Touch controller FT5X06 connected via I2C.
+        
+    endchoice
+
+endmenu
