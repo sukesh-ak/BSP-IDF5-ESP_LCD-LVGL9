@@ -76,11 +76,19 @@ static const char *TAG = "HMI";
 
 static SemaphoreHandle_t lvgl_mux = NULL;
 
-#if CONFIG_HMI_LCD_TOUCH_ENABLED
-esp_lcd_touch_handle_t tp = NULL;
-#endif
+extern void hmi_lvgl_demo_ui(lv_display_t *disp);
 
-extern void hmi_lvgl_demo_ui(lv_disp_t *disp);
+/* LCD IO and panel */
+static esp_lcd_panel_io_handle_t lcd_io_handle = NULL;
+static esp_lcd_panel_handle_t lcd_panel_handle = NULL;
+
+/* LVGL display and touch */
+static lv_display_t *lvgl_disp = NULL;
+
+#if CONFIG_HMI_LCD_TOUCH_ENABLED
+static esp_lcd_touch_handle_t touch_handle = NULL;
+static lv_indev_t *lvgl_touch_indev = NULL;
+#endif
 
 // Lock using mutex for multi-threading/tasking support
 bool hmi_lvgl_lock(int timeout_ms)
@@ -118,29 +126,34 @@ static void hmi_lvgl_task(void *arg)
 
 static bool hmi_notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx)
 {
-    lv_disp_drv_t *disp_driver = (lv_disp_drv_t *)user_ctx;
+    lv_display_t *disp_driver = (lv_display_t *)user_ctx;
     lv_disp_flush_ready(disp_driver);
     return false;
 }
 
-static void hmi_lvgl_flush_cb(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_map)
+static void hmi_lvgl_flush_cb(lv_display_t *drv, const lv_area_t *area, uint8_t * color_map)
 {
-    esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t) drv->user_data;
+    esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t) lv_display_get_user_data(drv);
+
+    size_t len = lv_area_get_size(area);
+    lv_draw_sw_rgb565_swap(color_map, len);
+
     int offsetx1 = area->x1;
     int offsetx2 = area->x2;
     int offsety1 = area->y1;
     int offsety2 = area->y2;
     // copy a buffer's content to a specific area of the display
     esp_lcd_panel_draw_bitmap(panel_handle, offsetx1, offsety1, offsetx2 + 1, offsety2 + 1, color_map);
+    //lv_display_flush_ready(drv);
 }
 
 /* Rotate display and touch, when rotated screen in LVGL. Called when driver parameters are updated. */
-static void hmi_lvgl_port_update_callback(lv_disp_drv_t *drv)
+static void hmi_lvgl_port_update_callback(lv_event_t *e)
 {
-    esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t) drv->user_data;
-
-    switch (drv->rotated) {
-    case LV_DISP_ROT_NONE:
+    esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t) e->user_data;
+    lv_display_rotation_t rotated = lv_display_get_rotation(lvgl_disp);
+    switch (rotated) {
+    case LV_DISP_ROTATION_0:
         // Rotate LCD display
         esp_lcd_panel_swap_xy(panel_handle, false);
         esp_lcd_panel_mirror(panel_handle, true, false);
@@ -150,7 +163,7 @@ static void hmi_lvgl_port_update_callback(lv_disp_drv_t *drv)
         esp_lcd_touch_set_mirror_x(tp, false);
 #endif
         break;
-    case LV_DISP_ROT_90:
+    case LV_DISP_ROTATION_90:
         // Rotate LCD display
         esp_lcd_panel_swap_xy(panel_handle, true);
         esp_lcd_panel_mirror(panel_handle, true, true);
@@ -160,7 +173,7 @@ static void hmi_lvgl_port_update_callback(lv_disp_drv_t *drv)
         esp_lcd_touch_set_mirror_x(tp, false);
 #endif
         break;
-    case LV_DISP_ROT_180:
+    case LV_DISP_ROTATION_180:
         // Rotate LCD display
         esp_lcd_panel_swap_xy(panel_handle, false);
         esp_lcd_panel_mirror(panel_handle, false, true);
@@ -170,7 +183,7 @@ static void hmi_lvgl_port_update_callback(lv_disp_drv_t *drv)
         esp_lcd_touch_set_mirror_x(tp, false);
 #endif
         break;
-    case LV_DISP_ROT_270:
+    case LV_DISP_ROTATION_270:
         // Rotate LCD display
         esp_lcd_panel_swap_xy(panel_handle, true);
         esp_lcd_panel_mirror(panel_handle, false, false);
@@ -215,9 +228,6 @@ static void hmi_increase_lvgl_tick(void *arg)
 //extern "C" 
 void app_main(void)
 {
-    static lv_disp_draw_buf_t disp_buf; // contains internal graphic buffer(s) called draw buffer(s)
-    static lv_disp_drv_t disp_drv;      // contains callback functions
-
     ESP_LOGI(TAG, "Turn off LCD backlight");
     gpio_config_t bk_gpio_config = {
         .mode = GPIO_MODE_OUTPUT,
@@ -252,8 +262,7 @@ void app_main(void)
 #endif
 
     ESP_LOGI(TAG, "Install panel IO");
-    esp_lcd_panel_io_handle_t io_handle = NULL;
-    esp_lcd_panel_io_spi_config_t io_config = {
+    esp_lcd_panel_io_spi_config_t panel_io_config = {
         .dc_gpio_num = HMI_PIN_NUM_LCD_DC,
         .cs_gpio_num = HMI_PIN_NUM_LCD_CS,
         .pclk_hz = HMI_LCD_PIXEL_CLOCK_HZ,
@@ -262,12 +271,11 @@ void app_main(void)
         .spi_mode = 0,
         .trans_queue_depth = 10,
         .on_color_trans_done = hmi_notify_lvgl_flush_ready,
-        .user_ctx = &disp_drv,
+        .user_ctx = &lvgl_disp,
     };
     // Attach the LCD to the SPI bus
-    ESP_ERROR_CHECK(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)LCD_HOST, &io_config, &io_handle));
+    ESP_ERROR_CHECK(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)LCD_HOST, &panel_io_config, &lcd_io_handle));
 
-    esp_lcd_panel_handle_t panel_handle = NULL;
     esp_lcd_panel_dev_config_t panel_config = {
         .reset_gpio_num = HMI_PIN_NUM_LCD_RST,
         .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_BGR,
@@ -275,16 +283,16 @@ void app_main(void)
     };
 #if CONFIG_HMI_LCD_CONTROLLER_ST7796
     ESP_LOGI(TAG, "Install ST7796 panel driver");
-    ESP_ERROR_CHECK(esp_lcd_new_panel_st7796(io_handle, &panel_config, &panel_handle));
+    ESP_ERROR_CHECK(esp_lcd_new_panel_st7796(lcd_io_handle, &panel_config, &lcd_panel_handle));
 #endif
 
-    ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
-    ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
+    ESP_ERROR_CHECK(esp_lcd_panel_reset(lcd_panel_handle));
+    ESP_ERROR_CHECK(esp_lcd_panel_init(lcd_panel_handle));
 
-    ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, false));
+    ESP_ERROR_CHECK(esp_lcd_panel_mirror(lcd_panel_handle, true, false));
 
     // user can flush pre-defined pattern to the screen before we turn on the screen or backlight
-    ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
+    ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(lcd_panel_handle, true));
 
 #if CONFIG_HMI_LCD_TOUCH_ENABLED
     esp_lcd_touch_handle_t tp_io_handle = NULL;
@@ -319,26 +327,30 @@ void app_main(void)
     lv_init();
     // alloc draw buffers used by LVGL
     // it's recommended to choose the size of the draw buffer(s) to be at least 1/10 screen sized
-    lv_color_t *buf1 = heap_caps_malloc(HMI_LCD_H_RES * 20 * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    //lv_color_t *buf1 = heap_caps_malloc(HMI_LCD_H_RES * 20 * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    uint16_t  *buf1 = heap_caps_malloc(HMI_LCD_H_RES * HMI_LCD_H_RES / 10, MALLOC_CAP_DMA);
+    
     assert(buf1);
-    lv_color_t *buf2 = heap_caps_malloc(HMI_LCD_H_RES * 20 * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    //lv_color_t *buf2 = heap_caps_malloc(HMI_LCD_H_RES * 20 * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    uint16_t  *buf2 = heap_caps_malloc(HMI_LCD_H_RES * HMI_LCD_H_RES / 10, MALLOC_CAP_DMA);
     assert(buf2);
 
-    // initialize LVGL draw buffers
-    lv_disp_draw_buf_init(&disp_buf, buf1, buf2, HMI_LCD_H_RES * 20);
-    
-    // TODO: LVGL v9
-    //lv_display_set_buffers
-
     ESP_LOGI(TAG, "Register display driver to LVGL");
-    lv_disp_drv_init(&disp_drv);
-    disp_drv.hor_res = HMI_LCD_H_RES;
-    disp_drv.ver_res = HMI_LCD_V_RES;
-    disp_drv.flush_cb = hmi_lvgl_flush_cb;
-    disp_drv.drv_update_cb = hmi_lvgl_port_update_callback;
-    disp_drv.draw_buf = &disp_buf;
-    disp_drv.user_data = panel_handle;
-    lv_disp_t *disp = lv_disp_drv_register(&disp_drv);
+    // TODO: LVGL v9
+    lvgl_disp = lv_display_create(HMI_LCD_H_RES,HMI_LCD_V_RES);
+    lv_display_set_buffers(lvgl_disp,buf1,buf2,sizeof(buf1),LV_DISPLAY_RENDER_MODE_DIRECT);
+    lv_display_set_flush_cb(lvgl_disp,hmi_lvgl_flush_cb);
+    lv_display_set_driver_data(lvgl_disp,lcd_panel_handle);
+    lv_display_add_event_cb(lvgl_disp,hmi_lvgl_port_update_callback,LV_EVENT_RESOLUTION_CHANGED,lcd_panel_handle);
+
+    // lv_disp_drv_init(&disp_drv);
+    // disp_drv.hor_res = HMI_LCD_H_RES;
+    // disp_drv.ver_res = HMI_LCD_V_RES;
+    // disp_drv.flush_cb = hmi_lvgl_flush_cb;
+    // disp_drv.drv_update_cb = hmi_lvgl_port_update_callback;
+    // disp_drv.draw_buf = &disp_buf;
+    // disp_drv.user_data = panel_handle;
+    // lv_disp_t *disp = lv_disp_drv_register(&disp_drv);
 
     ESP_LOGI(TAG, "Install LVGL tick timer");
     // Tick interface for LVGL (using esp_timer to generate 2ms periodic event)
@@ -373,7 +385,7 @@ void app_main(void)
     if (hmi_lvgl_lock(-1)) {
         
         ESP_LOGI(TAG, "Display LVGL Meter Widget");
-        hmi_lvgl_demo_ui(disp);
+        hmi_lvgl_demo_ui(lvgl_disp);
 
         // Release the mutex
         hmi_lvgl_unlock();

@@ -1,8 +1,49 @@
 #include "lvgl.h"
 
-static lv_obj_t *meter;
 static lv_obj_t * btn;
-static lv_disp_rot_t rotation = LV_DISP_ROT_NONE;
+static lv_display_rotation_t rotation = LV_DISPLAY_ROTATION_0;
+
+static void _app_button_cb(lv_event_t *e)
+{
+    lv_display_t * lvgl_disp = lv_disp_get_default();
+    lv_disp_rotation_t rotation = lv_disp_get_rotation(lvgl_disp);
+    rotation++;
+    if (rotation > LV_DISPLAY_ROTATION_270) {
+        rotation = LV_DISPLAY_ROTATION_0;
+    }
+
+    /* LCD HW rotation */
+    lv_disp_set_rotation(lvgl_disp, rotation);
+}
+
+void hmi_lvgl_demo_ui(lv_display_t *disp)
+{
+    lv_obj_t *scr = lv_display_get_screen_active(disp);
+
+    /* Your LVGL objects code here .... */
+
+    /* Label */
+    lv_obj_t *label = lv_label_create(scr);
+    lv_obj_set_width(label, 50);
+    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_label_set_text(label, LV_SYMBOL_BELL" Hello world ESP32 and LVGL v9" );
+    lv_obj_align(label, LV_ALIGN_CENTER, 0, -30);
+
+    /* Button */
+    btn = lv_btn_create(scr);
+    label = lv_label_create(btn);
+    lv_label_set_text_static(label, "Rotate screen");
+    lv_obj_align(btn, LV_ALIGN_BOTTOM_MID, 0, -30);
+    lv_obj_add_event_cb(btn, _app_button_cb, LV_EVENT_CLICKED, NULL);
+
+    lv_disp_set_rotation(disp, LV_DISPLAY_ROTATION_180);
+}
+
+#if 0
+#include "lvgl.h"
+
+static lv_obj_t *meter;
+
 
 static void set_value(void *indic, int32_t v)
 {
@@ -79,3 +120,4 @@ void hmi_lvgl_demo_ui(lv_disp_t *disp)
     lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE);
     lv_anim_start(&a);
 }
+#endif
