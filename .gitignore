@@ -1,5 +1,7 @@
 build
 managed_components
+sdkconfig
+sdkconfig.old
 
 # Prerequisites
 *.d
@@ -33,4 +35,4 @@ managed_components
 *.exe
 *.out
 *.app
-sdkconfig.old
+sdkconfig
