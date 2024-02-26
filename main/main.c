@@ -134,7 +134,9 @@ static esp_err_t app_lcd_init(void)
 
     esp_lcd_panel_reset(lcd_panel);
     esp_lcd_panel_init(lcd_panel);
-    esp_lcd_panel_mirror(lcd_panel, true, true);
+
+    esp_lcd_panel_mirror(lcd_panel, false, true);
+   
     esp_lcd_panel_disp_on_off(lcd_panel, true);
 
     /* LCD backlight on */
@@ -142,7 +144,6 @@ static esp_err_t app_lcd_init(void)
 
     return ret;
 }
-
 
 static esp_err_t app_touch_init(void)
 {
@@ -177,6 +178,7 @@ static esp_err_t app_touch_init(void)
     esp_lcd_panel_io_handle_t tp_io_handle = NULL;
     const esp_lcd_panel_io_i2c_config_t tp_io_config = ESP_LCD_TOUCH_IO_I2C_FT5x06_CONFIG();;
     ESP_ERROR_CHECK(esp_lcd_new_panel_io_i2c((esp_lcd_i2c_bus_handle_t)HMI_TOUCH_I2C_NUM, &tp_io_config, &tp_io_handle));
+
     return esp_lcd_touch_new_i2c_ft5x06(tp_io_handle, &tp_cfg, &touch_handle);
 }
 
@@ -206,7 +208,7 @@ static esp_err_t app_lvgl_init(void)
         .rotation = {
             .swap_xy = false,
             .mirror_x = false,
-            .mirror_y = false,
+            .mirror_y = true,
         },
         .flags = {
             .buff_dma = true,
@@ -221,6 +223,10 @@ static esp_err_t app_lvgl_init(void)
         .handle = touch_handle,
     };
     lvgl_touch_indev = lvgl_port_add_touch(&touch_cfg);
+
+    esp_lcd_touch_set_mirror_y(touch_handle, true);
+    esp_lcd_touch_set_mirror_x(touch_handle, true);
+
 
     return ESP_OK;
 }
@@ -244,6 +250,7 @@ static void app_main_display(void)
     /* Task lock */
     lvgl_port_lock(0);
 
+    //lv_disp_set_rotation(lvgl_disp, LV_DISPLAY_ROTATION_90);
     /* Your LVGL objects code here .... */
 
     /* Label */
