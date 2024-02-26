@@ -17,16 +17,10 @@
 #include "esp_lcd_st7796.h"
 #endif
 
-/* Check if its required for sleep */
-// #if CONFIG_HMI_LCD_TOUCH_ENABLED
-// #include <esp_lcd_touch.h>
-// #endif
-
 #if CONFIG_HMI_LCD_TOUCH_CONTROLLER_FT5X06
 #include "esp_lcd_touch_ft5x06.h"
 #endif
 #include <driver/i2c.h>
-
 
 static const char *TAG = "HMI";
 
@@ -141,7 +135,6 @@ static esp_err_t app_lcd_init(void)
 
     /* LCD backlight on */
     ESP_ERROR_CHECK(gpio_set_level(HMI_PIN_NUM_BK_LIGHT, HMI_LCD_BK_LIGHT_ON_LEVEL));
-
     return ret;
 }
 
@@ -224,9 +217,9 @@ static esp_err_t app_lvgl_init(void)
     };
     lvgl_touch_indev = lvgl_port_add_touch(&touch_cfg);
 
+    // Added to fix the touch points
     esp_lcd_touch_set_mirror_y(touch_handle, true);
     esp_lcd_touch_set_mirror_x(touch_handle, true);
-
 
     return ESP_OK;
 }
@@ -250,19 +243,13 @@ static void app_main_display(void)
     /* Task lock */
     lvgl_port_lock(0);
 
-    //lv_disp_set_rotation(lvgl_disp, LV_DISPLAY_ROTATION_90);
     /* Your LVGL objects code here .... */
 
     /* Label */
     lv_obj_t *label = lv_label_create(scr);
     lv_obj_set_width(label, HMI_LCD_H_RES);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
-#if LVGL_VERSION_MAJOR == 8
-    lv_label_set_recolor(label, true);
-    lv_label_set_text(label, "#FF0000 "LV_SYMBOL_BELL" Hello world Espressif and LVGL "LV_SYMBOL_BELL"#\n#FF9400 "LV_SYMBOL_WARNING" For simplier initialization, use BSP "LV_SYMBOL_WARNING" #");
-#else
-    lv_label_set_text(label, LV_SYMBOL_BELL" Hello world Espressif and LVGL "LV_SYMBOL_BELL"\n "LV_SYMBOL_WARNING" For simplier initialization, use BSP "LV_SYMBOL_WARNING);
-#endif
+    lv_label_set_text(label, LV_SYMBOL_BELL" Hello world Espressif and LVGL v9"LV_SYMBOL_BELL"\n "LV_SYMBOL_ENVELOPE" Using esp_lvgl_port from ESP-BSP");
     lv_obj_align(label, LV_ALIGN_CENTER, 0, -30);
 
     /* Button */
