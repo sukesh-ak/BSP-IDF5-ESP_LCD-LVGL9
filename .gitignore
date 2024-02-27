@@ -35,4 +35,3 @@ sdkconfig.old
 *.exe
 *.out
 *.app
-sdkconfig

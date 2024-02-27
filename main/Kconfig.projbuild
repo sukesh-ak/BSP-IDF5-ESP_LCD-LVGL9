@@ -14,6 +14,13 @@ menu "HMI Device Configuration"
 
         config HMI_LCD_CONTROLLER_ST7796
             bool "ST7796"
+            help
+                TFT controller ST7796 with SPI interface.
+       
+            config HMI_LCD_CONTROLLER_ST7796P8
+            bool "ST7796P8"            
+            help
+                TFT controller ST7796 with 8bit Parellel interface.
     endchoice
 
     config HMI_LCD_TOUCH_ENABLED
