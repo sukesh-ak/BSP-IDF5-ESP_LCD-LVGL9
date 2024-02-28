@@ -103,6 +103,8 @@ static const char *TAG = "HMI";
 
 #define HMI_LVGL_TICK_PERIOD_MS    2
 
+extern void app_main_display();
+
 /* LCD IO and panel */
 static esp_lcd_panel_io_handle_t lcd_panel_io_handle = NULL;
 static esp_lcd_panel_handle_t lcd_panel_handle = NULL;
@@ -186,9 +188,7 @@ static esp_err_t app_lcd_i80_init(void)
             HMI_LCD_H_RES * HMI_LCD_V_RES * HMI_LCD_BIT_PER_PIXEL / 8, HMI_LCD_DATA_WIDTH,
             HMI_PIN_NUM_LCD_DC, HMI_PIN_NUM_LCD_WR,
             HMI_PIN_NUM_LCD_DATA0, HMI_PIN_NUM_LCD_DATA1, HMI_PIN_NUM_LCD_DATA2, HMI_PIN_NUM_LCD_DATA3,
-            HMI_PIN_NUM_LCD_DATA4, HMI_PIN_NUM_LCD_DATA5, HMI_PIN_NUM_LCD_DATA6, HMI_PIN_NUM_LCD_DATA7,
-            HMI_PIN_NUM_LCD_DATA8, HMI_PIN_NUM_LCD_DATA9, HMI_PIN_NUM_LCD_DATA10, HMI_PIN_NUM_LCD_DATA11,
-            HMI_PIN_NUM_LCD_DATA12, HMI_PIN_NUM_LCD_DATA13, HMI_PIN_NUM_LCD_DATA14, HMI_PIN_NUM_LCD_DATA15);
+            HMI_PIN_NUM_LCD_DATA4, HMI_PIN_NUM_LCD_DATA5, HMI_PIN_NUM_LCD_DATA6, HMI_PIN_NUM_LCD_DATA7);
     ESP_ERROR_CHECK(esp_lcd_new_i80_bus(&bus_config, &i80_bus));
 
     ESP_LOGI(TAG, "Install panel IO");
@@ -298,45 +298,6 @@ static esp_err_t app_lvgl_init(void)
     return ESP_OK;
 }
 
-static void _app_button_cb(lv_event_t *e)
-{
-    lv_disp_rotation_t rotation = lv_disp_get_rotation(lvgl_disp);
-    rotation++;
-    if (rotation > LV_DISPLAY_ROTATION_270) {
-        rotation = LV_DISPLAY_ROTATION_0;
-    }
-
-    /* LCD HW rotation */
-    lv_disp_set_rotation(lvgl_disp, rotation);
-}
-
-static void app_main_display(void)
-{
-    lv_obj_t *scr = lv_scr_act();
-
-    /* Task lock */
-    lvgl_port_lock(0);
-
-    /* Your LVGL objects code here .... */
-
-    /* Label */
-    lv_obj_t *label = lv_label_create(scr);
-    lv_obj_set_width(label, HMI_LCD_H_RES);
-    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_label_set_text(label, LV_SYMBOL_BELL" Hello world Espressif and LVGL v9"LV_SYMBOL_BELL"\n "LV_SYMBOL_ENVELOPE" Using esp_lvgl_port from ESP-BSP");
-    lv_obj_align(label, LV_ALIGN_CENTER, 0, -30);
-
-    /* Button */
-    lv_obj_t *btn = lv_btn_create(scr);
-    label = lv_label_create(btn);
-    lv_label_set_text_static(label, "Rotate screen");
-    lv_obj_align(btn, LV_ALIGN_BOTTOM_MID, 0, -30);
-    lv_obj_add_event_cb(btn, _app_button_cb, LV_EVENT_CLICKED, NULL);
-
-    /* Task unlock */
-    lvgl_port_unlock();
-}
-
 void app_main(void)
 {
 #if CONFIG_HMI_LCD_CONTROLLER_ST7796    
@@ -352,7 +313,8 @@ void app_main(void)
 
     /* LVGL initialization */
     ESP_ERROR_CHECK(app_lvgl_init());
-
+    
     /* Show LVGL objects */
     app_main_display();
+    
 }
