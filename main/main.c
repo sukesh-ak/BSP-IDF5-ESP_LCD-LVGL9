@@ -99,9 +99,7 @@ static const char *TAG = "HMI";
 #define HMI_LVGL_TASK_MAX_DELAY_MS 500
 #define HMI_LVGL_TASK_MIN_DELAY_MS 1
 #define HMI_LVGL_TASK_STACK_SIZE   (4 * 1024)
-#define HMI_LVGL_TASK_PRIORITY     2
-
-#define HMI_LVGL_TICK_PERIOD_MS    2
+#define HMI_LVGL_TASK_PRIORITY     4
 
 extern void app_main_display();
 
@@ -253,11 +251,11 @@ static esp_err_t app_lvgl_init(void)
 {
     /* Initialize LVGL */
     const lvgl_port_cfg_t lvgl_cfg = {
-        .task_priority = 4,         /* LVGL task priority */
-        .task_stack = 4096,         /* LVGL task stack size */
-        .task_affinity = -1,        /* LVGL task pinned to core (-1 is no affinity) */
-        .task_max_sleep_ms = 500,   /* Maximum sleep in LVGL task */
-        .timer_period_ms = 5        /* LVGL timer tick period in ms */
+        .task_priority = HMI_LVGL_TASK_PRIORITY,            /* LVGL task priority */
+        .task_stack = HMI_LVGL_TASK_STACK_SIZE,             /* LVGL task stack size */
+        .task_affinity = 1,                                /* LVGL task pinned to core (-1 is no affinity) */
+        .task_max_sleep_ms = HMI_LVGL_TASK_MAX_DELAY_MS,    /* Maximum sleep in LVGL task */
+        .timer_period_ms = HMI_LVGL_TASK_MIN_DELAY_MS       /* LVGL timer tick period in ms */
     };
     ESP_ERROR_CHECK(lvgl_port_init(&lvgl_cfg));
 
@@ -278,7 +276,8 @@ static esp_err_t app_lvgl_init(void)
             .mirror_y = true,
         },
         .flags = {
-            .buff_dma = true,
+            .buff_dma = false,
+            .buff_spiram = true,
             .swap_bytes = true,
         }
     };
