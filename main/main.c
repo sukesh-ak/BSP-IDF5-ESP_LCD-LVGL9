@@ -67,7 +67,7 @@ static const char *TAG = "HMI";
 #endif
 
 // Touch PINS
-#define HMI_TOUCH_I2C_NUM 1
+#define HMI_TOUCH_I2C_NUM I2C_NUM_1
 #define HMI_I2C_CLK_SPEED_HZ 400000
 
 #if CONFIG_HMI_LCD_CONTROLLER_ST7796
@@ -97,7 +97,7 @@ static const char *TAG = "HMI";
 // LVGL Settings
 #define HMI_LVGL_TICK_PERIOD_MS    2
 #define HMI_LVGL_TASK_MAX_DELAY_MS 500
-#define HMI_LVGL_TASK_MIN_DELAY_MS 1
+#define HMI_LVGL_TASK_MIN_DELAY_MS 5
 #define HMI_LVGL_TASK_STACK_SIZE   (4 * 1024)
 #define HMI_LVGL_TASK_PRIORITY     4
 
