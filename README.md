@@ -2,7 +2,7 @@
 How to use `ESP_LCD` components for Display & Touch with `LVGL 9.x` using `ESP_LVGL_PORT` from `ESP-BSP`.  
 **[Espressif Component Registry](https://components.espressif.com/)**
 
-![Static Badge](https://img.shields.io/badge/DEVICE-WT32--SC01-8A2BE2) 
+![Static Badge](https://img.shields.io/badge/DEVICE-WT32--SC01-8A2BE2) ![Static Badge](https://img.shields.io/badge/MCU-ESP32-8A2BE2) 
 ![Static Badge](https://img.shields.io/badge/OS-FreeRTOS-orange) ![Static Badge](https://img.shields.io/badge/SDK-ESP--IDF%20v5.x-blue) ![Static Badge](https://img.shields.io/badge/UI%20WIDGETS-LVGL%209.x-green)   
 ![Static Badge](https://img.shields.io/badge/LCD%20Driver-ESP%20LCD%20ST7796%20[SPI]-red) ![Static Badge](https://img.shields.io/badge/TOUCH%20Driver-FT5x06-00FFFF)
    
@@ -13,7 +13,7 @@ How to use `ESP_LCD` components for Display & Touch with `LVGL 9.x` using `ESP_L
 - **ESP_LVGL_PORT** : [ESP-BSP](https://components.espressif.com/components/espressif/esp_lvgl_port) 
 
 ## Support Coming Soon:  
-![Static Badge](https://img.shields.io/badge/DEVICE-WT32--SC01%20Plus-8A2BE2) ![Static Badge](https://img.shields.io/badge/OS-FreeRTOS-orange) ![Static Badge](https://img.shields.io/badge/SDK-ESP--IDF%20v5.x-blue) ![Static Badge](https://img.shields.io/badge/UI%20WIDGETS-LVGL%209.x-green)  
+![Static Badge](https://img.shields.io/badge/DEVICE-WT32--SC01%20Plus-8A2BE2) ![Static Badge](https://img.shields.io/badge/MCU-ESP32--S3-8A2BE2) ![Static Badge](https://img.shields.io/badge/OS-FreeRTOS-orange) ![Static Badge](https://img.shields.io/badge/SDK-ESP--IDF%20v5.x-blue) ![Static Badge](https://img.shields.io/badge/UI%20WIDGETS-LVGL%209.x-green)  
 ![Static Badge](https://img.shields.io/badge/LCD%20Driver-ESP%20LCD%20ST7796%20[8Bit%20Parellel]-red)  ![Static Badge](https://img.shields.io/badge/TOUCH%20Driver-FT5x06-00FFFF) 
 ##
 ![Static Badge](https://img.shields.io/badge/SPONSORING-blue?style=for-the-badge)    
