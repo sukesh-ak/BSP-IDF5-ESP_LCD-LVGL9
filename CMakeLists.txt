@@ -6,7 +6,8 @@ set(SDKCONFIG "${CMAKE_BINARY_DIR}/sdkconfig")
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
 #LVGL custom config file setup
-idf_build_set_property(COMPILE_OPTIONS "-DLV_CONF_INCLUDE_SIMPLE=1" APPEND)
+#idf_build_set_property(COMPILE_OPTIONS "-DLV_CONF_INCLUDE_SIMPLE=1" APPEND)
+idf_build_set_property(COMPILE_OPTIONS "-DLV_LVGL_H_INCLUDE_SIMPLE=1" APPEND)
 idf_build_set_property(COMPILE_OPTIONS "-I../main" APPEND)
 
 project(IDF-ESP_LCD-LVGL)
