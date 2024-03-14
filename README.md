@@ -9,3 +9,12 @@ How to use `ESP_LCD` for Display & Touch with `LVGL 9.x` using `esp_lvgl_port` f
 - **UI Widgets** : [LVGL v9.x](https://components.espressif.com/components/lvgl/lvgl) with custom `lv_conf.h` => Check [CMakeLists.txt](CMakeLists.txt)  
 - **ESP_LVGL_PORT** : [ESP-BSP](https://components.espressif.com/components/espressif/esp_lvgl_port) 
 
+##
+![Static Badge](https://img.shields.io/badge/SPONSORING-blue?style=for-the-badge)
+
+If you use my projects or like them, consider sponsoring me. Anything helps and encourages me to keep going.  
+See details here: https://github.com/sponsors/sukesh-ak  
+
+Your sponsorship would help me not only to maintain the projects I'm involved in, but also support my other community activities and purchase hardware for testing these libraries. If you're an individual user who has enjoyed my projects or benefited from my community work, please consider donating as a sign of appreciation. If you run a business that uses my work in your products, sponsoring my development makes good business sense: it ensures that the projects your product relies on stay healthy and actively maintained.
+
+Thank you for considering supporting my work!
