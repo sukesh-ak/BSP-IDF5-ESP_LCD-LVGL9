@@ -236,8 +236,8 @@ static esp_err_t app_touch_init(void)
         },
         .flags = {
             .swap_xy = 0,
-            .mirror_x = 0,
-            .mirror_y = 0,
+            .mirror_x = 1,
+            .mirror_y = 1,
         },
     };
     esp_lcd_panel_io_handle_t tp_io_handle = NULL;
@@ -289,10 +289,6 @@ static esp_err_t app_lvgl_init(void)
         .handle = touch_handle,
     };
     lvgl_touch_indev = lvgl_port_add_touch(&touch_cfg);
-
-    // Added to fix the touch points
-    esp_lcd_touch_set_mirror_y(touch_handle, true);
-    esp_lcd_touch_set_mirror_x(touch_handle, true);
 
     return ESP_OK;
 }
