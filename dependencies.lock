@@ -1,10 +1,16 @@
 dependencies:
-  espressif/esp_lcd_st7796:
-    component_hash: fa118bf3d2177a98ecd864e510a54a3fd3a954bc8725ebdeef8f958a5bd5cef3
+  espressif/cmake_utilities:
+    component_hash: 351350613ceafba240b761b4ea991e0f231ac7a9f59a9ee901f751bddc0bb18f
     source:
       service_url: https://api.components.espressif.com/
       type: service
-    version: 1.0.0
+    version: 0.5.3
+  espressif/esp_lcd_st7796:
+    component_hash: 8c427fda6dbce13d1b254937217a6f35f6655d708e041fbeb3dd8f968ee3cce0
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 1.2.1
   espressif/esp_lcd_touch:
     component_hash: d4d8f2dc33205797169a97a02e0d89a8982f59fe0509129b54422052b8522f59
     source:
@@ -35,5 +41,5 @@ dependencies:
       type: service
     version: 9.0.0
 manifest_hash: 9847ed4e8bd053dd02c924fd16325e569d12d4dc49cdfcf86104f9b87101de44
-target: esp32
+target: esp32s3
 version: 1.0.0

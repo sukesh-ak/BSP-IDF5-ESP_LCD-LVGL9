@@ -13,7 +13,7 @@
 #include "lvgl.h"
 #include "esp_lvgl_port.h"
 
-#if CONFIG_HMI_LCD_CONTROLLER_ST7796
+#if CONFIG_HMI_LCD_CONTROLLER_ST7796 || CONFIG_HMI_LCD_CONTROLLER_ST7796P8
 #include "esp_lcd_st7796.h"
 #endif
 
@@ -57,13 +57,25 @@ static const char *TAG = "HMI";
     #define HMI_PIN_NUM_DATA3          8
     #define HMI_PIN_NUM_DATA4          18
     #define HMI_PIN_NUM_DATA5          17
+
     #define HMI_PIN_NUM_DATA6          16
     #define HMI_PIN_NUM_DATA7          15
 
-    #define HMI_PIN_NUM_RST            0
-    #define HMI_PIN_NUM_PCLK           47
-    #define HMI_PIN_NUM_DC             -1
+    #define HMI_PIN_NUM_CS            -1
+    #define HMI_PIN_NUM_RESET          4
+    #define HMI_PIN_NUM_WR             47
+    #define HMI_PIN_NUM_RS             0
+    #define HMI_PIN_NUM_DC             0
     #define HMI_PIN_NUM_BK_LIGHT       45
+
+    #define HMI_PIN_NUM_DATA8      (-1)
+    #define HMI_PIN_NUM_DATA9      (-1)
+    #define HMI_PIN_NUM_DATA10     (-1)
+    #define HMI_PIN_NUM_DATA11     (-1)
+    #define HMI_PIN_NUM_DATA12     (-1)
+    #define HMI_PIN_NUM_DATA13     (-1)
+    #define HMI_PIN_NUM_DATA14     (-1)
+    #define HMI_PIN_NUM_DATA15     (-1)    
 #endif
 
 // Touch PINS
@@ -88,6 +100,8 @@ static const char *TAG = "HMI";
 #define HMI_LCD_COLOR_SPACE     (ESP_LCD_COLOR_SPACE_BGR)
 #define HMI_LCD_BITS_PER_PIXEL  (16)
 #define HMI_LCD_DRAW_BUFF_DOUBLE (1)
+
+#define HMI_LCD_BUS_WIDTH   (8)   // data width
 #endif
 
 // Bit number used to represent command and parameter
@@ -182,30 +196,60 @@ static esp_err_t app_lcd_i80_init(void)
     /* LCD initialization */
     ESP_LOGI(TAG, "Initialize Intel 8080 bus");
     esp_lcd_i80_bus_handle_t i80_bus = NULL;
+    //HMI_LCD_H_RES * HMI_LCD_V_RES * HMI_LCD_BITS_PER_PIXEL / 8, 
     esp_lcd_i80_bus_config_t bus_config = ST7796_PANEL_BUS_I80_CONFIG(
-            HMI_LCD_H_RES * HMI_LCD_V_RES * HMI_LCD_BIT_PER_PIXEL / 8, HMI_LCD_DATA_WIDTH,
-            HMI_PIN_NUM_LCD_DC, HMI_PIN_NUM_LCD_WR,
-            HMI_PIN_NUM_LCD_DATA0, HMI_PIN_NUM_LCD_DATA1, HMI_PIN_NUM_LCD_DATA2, HMI_PIN_NUM_LCD_DATA3,
-            HMI_PIN_NUM_LCD_DATA4, HMI_PIN_NUM_LCD_DATA5, HMI_PIN_NUM_LCD_DATA6, HMI_PIN_NUM_LCD_DATA7);
+            HMI_LCD_H_RES * HMI_LCD_DRAW_BUFF_HEIGHT * sizeof(uint16_t),
+            HMI_LCD_BUS_WIDTH,
+            HMI_PIN_NUM_DC, 
+            HMI_PIN_NUM_WR,
+            HMI_PIN_NUM_DATA0, 
+            HMI_PIN_NUM_DATA1, 
+            HMI_PIN_NUM_DATA2, 
+            HMI_PIN_NUM_DATA3,
+            HMI_PIN_NUM_DATA4, 
+            HMI_PIN_NUM_DATA5, 
+            HMI_PIN_NUM_DATA6, 
+            HMI_PIN_NUM_DATA7,
+
+            HMI_PIN_NUM_DATA8, 
+            HMI_PIN_NUM_DATA9, 
+            HMI_PIN_NUM_DATA10, 
+            HMI_PIN_NUM_DATA11,
+            HMI_PIN_NUM_DATA12, 
+            HMI_PIN_NUM_DATA13, 
+            HMI_PIN_NUM_DATA14, 
+            HMI_PIN_NUM_DATA15);
+
     ESP_ERROR_CHECK(esp_lcd_new_i80_bus(&bus_config, &i80_bus));
 
     ESP_LOGI(TAG, "Install panel IO");
-    esp_lcd_panel_io_handle_t io_handle = NULL;
-    esp_lcd_panel_io_i80_config_t io_config = ST7796_PANEL_IO_I80_CONFIG(HMI_PIN_NUM_LCD_CS, example_callback, &example_callback_ctx);
-    ESP_ERROR_CHECK(esp_lcd_new_panel_io_i80(i80_bus, &io_config, &io_handle));
+    esp_lcd_panel_io_i80_config_t io_config = {
+        .cs_gpio_num = HMI_PIN_NUM_CS,
+        .pclk_hz = HMI_LCD_PIXEL_CLOCK_HZ,
+        .trans_queue_depth = 10,
+        .dc_levels = {
+            .dc_idle_level = 0,
+            .dc_cmd_level = 0,
+            .dc_dummy_level = 0,
+            .dc_data_level = 1,
+        },
+    };
+
+        //ST7796_PANEL_IO_I80_CONFIG(-1, example_callback, &example_callback_ctx);
+    ESP_ERROR_CHECK(esp_lcd_new_panel_io_i80(i80_bus, &io_config, &lcd_panel_io_handle));
 
     ESP_LOGI(TAG, "Install ST7796 panel driver");
-    esp_lcd_panel_handle_t panel_handle = NULL;
     const esp_lcd_panel_dev_config_t panel_config = {
-        .reset_gpio_num = HMI_PIN_NUM_LCD_RST,      // Set to -1 if not use
+        .reset_gpio_num = HMI_PIN_NUM_RESET,      // Set to -1 if not use
         .rgb_endian = LCD_RGB_ENDIAN_RGB,
-        .bits_per_pixel = HMI_LCD_BIT_PER_PIXEL,    // Implemented by LCD command `3Ah` (16/18/24)
+        .bits_per_pixel = HMI_LCD_BITS_PER_PIXEL,    // Implemented by LCD command `3Ah` (16/18/24)
     };
-    ESP_ERROR_CHECK(esp_lcd_new_panel_st7796(io_handle, &panel_config, &panel_handle));
-    ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
-    ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
+    ESP_ERROR_CHECK(esp_lcd_new_panel_st7796(lcd_panel_io_handle, &panel_config, &lcd_panel_handle));
+    ESP_ERROR_CHECK(esp_lcd_panel_reset(lcd_panel_handle));
+    ESP_ERROR_CHECK(esp_lcd_panel_init(lcd_panel_handle));
 
-    ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
+    ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(lcd_panel_handle, true));
+    return ret;
 }
 #endif
 
