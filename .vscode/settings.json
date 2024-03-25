@@ -15,6 +15,8 @@
     "idf.pythonBinPathWin": "C:\\espressif\\.espressif\\python_env\\idf5.1_py3.11_env\\Scripts\\python.exe",
     "idf.toolsPathWin": "C:\\espressif\\.espressif",
     "files.associations": {
-        "esp_lcd_touch.h": "c"
+        "esp_lcd_touch.h": "c",
+        "lcd_types.h": "c",
+        "esp_lcd_panel_vendor.h": "c"
     }
 }
