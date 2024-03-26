@@ -24,14 +24,17 @@
 
 static const char *TAG = "HMI";
 
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////// Update the following configuration according to your LCD spec //////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #define HMI_LCD_PIXEL_CLOCK_HZ     (20 * 1000 * 1000)
 #define HMI_LCD_BK_LIGHT_ON_LEVEL  1
 #define HMI_LCD_BK_LIGHT_OFF_LEVEL !HMI_LCD_BK_LIGHT_ON_LEVEL
+
+/* TODO: Move def and device specific functions to header under `devices`
+#if CONFIG_HMI_LCD_CONTROLLER_ST7796
+    #include "devices/dev_wt32sc01.h"
+#elif CONFIG_HMI_LCD_CONTROLLER_ST7796P8
+    #include "devices/dev_wt32sc01plus.h"
+#endif 
+*/
 
 #if CONFIG_HMI_LCD_CONTROLLER_ST7796
     // WT32-SC01 - ST7789 SPI
@@ -42,6 +45,7 @@ static const char *TAG = "HMI";
     #define HMI_PIN_NUM_SCLK           14
     #define HMI_PIN_NUM_MOSI           13
     #define HMI_PIN_NUM_MISO           -1
+
     #define HMI_PIN_NUM_LCD_DC         21
     #define HMI_PIN_NUM_LCD_RESET      22
     #define HMI_PIN_NUM_LCD_CS         15
@@ -60,6 +64,16 @@ static const char *TAG = "HMI";
     #define HMI_PIN_NUM_DATA6          16
     #define HMI_PIN_NUM_DATA7          15
 
+    // 8 bit so rest ignored
+    #define HMI_PIN_NUM_DATA8      (-1)
+    #define HMI_PIN_NUM_DATA9      (-1)
+    #define HMI_PIN_NUM_DATA10     (-1)
+    #define HMI_PIN_NUM_DATA11     (-1)
+    #define HMI_PIN_NUM_DATA12     (-1)
+    #define HMI_PIN_NUM_DATA13     (-1)
+    #define HMI_PIN_NUM_DATA14     (-1)
+    #define HMI_PIN_NUM_DATA15     (-1)  
+
     #define HMI_PIN_NUM_CS            -1
     #define HMI_PIN_NUM_RESET          4
     #define HMI_PIN_NUM_WR             47
@@ -69,17 +83,7 @@ static const char *TAG = "HMI";
     #define HMI_PIN_NUM_TE             48
 
     #define HMI_PIN_NUM_BK_LIGHT       45
-    #define HMI_PWM_CHANNEL             7
-
-    // 8 bit so rest ignored
-    #define HMI_PIN_NUM_DATA8      (-1)
-    #define HMI_PIN_NUM_DATA9      (-1)
-    #define HMI_PIN_NUM_DATA10     (-1)
-    #define HMI_PIN_NUM_DATA11     (-1)
-    #define HMI_PIN_NUM_DATA12     (-1)
-    #define HMI_PIN_NUM_DATA13     (-1)
-    #define HMI_PIN_NUM_DATA14     (-1)
-    #define HMI_PIN_NUM_DATA15     (-1)    
+    #define HMI_PWM_CHANNEL             7 
 #endif
 
 // Touch PINS
@@ -98,21 +102,21 @@ static const char *TAG = "HMI";
 
 // The pixel number in horizontal and vertical
 #if CONFIG_HMI_LCD_CONTROLLER_ST7796 || CONFIG_HMI_LCD_CONTROLLER_ST7796P8
-#define HMI_LCD_H_RES              320
-#define HMI_LCD_V_RES              480
-#define HMI_LCD_DRAW_BUFF_HEIGHT (50)
-#define HMI_LCD_COLOR_SPACE     (ESP_LCD_COLOR_SPACE_BGR)
-#define HMI_LCD_BITS_PER_PIXEL  (16)
-#define HMI_LCD_DRAW_BUFF_DOUBLE (1)
+    #define HMI_LCD_H_RES               320
+    #define HMI_LCD_V_RES               480
+    #define HMI_LCD_DRAW_BUFF_HEIGHT    (50)
+    #define HMI_LCD_COLOR_SPACE         (ESP_LCD_COLOR_SPACE_BGR)
+    #define HMI_LCD_BITS_PER_PIXEL      (16)
+    #define HMI_LCD_DRAW_BUFF_DOUBLE    (1)
 
-#define HMI_LCD_BUS_WIDTH   (8)   // data width
+    #define HMI_LCD_BUS_WIDTH           (8)   
 #endif
 
 // Bit number used to represent command and parameter
 #define HMI_LCD_CMD_BITS           8
 #define HMI_LCD_PARAM_BITS         8
 
-// LVGL Settings
+// LVGL task Settings
 #define HMI_LVGL_TICK_PERIOD_MS    2
 #define HMI_LVGL_TASK_MAX_DELAY_MS 500
 #define HMI_LVGL_TASK_MIN_DELAY_MS 5
@@ -200,7 +204,6 @@ static esp_err_t app_lcd_i80_init(void)
     /* LCD initialization */
     ESP_LOGI(TAG, "Initialize Intel 8080 bus");
     esp_lcd_i80_bus_handle_t i80_bus = NULL;
-    //HMI_LCD_H_RES * HMI_LCD_V_RES * HMI_LCD_BITS_PER_PIXEL / 8, 
     esp_lcd_i80_bus_config_t bus_config = ST7796_PANEL_BUS_I80_CONFIG(
             HMI_LCD_H_RES * HMI_LCD_V_RES * HMI_LCD_DRAW_BUFF_HEIGHT * sizeof(uint16_t),
             HMI_LCD_BUS_WIDTH,
@@ -224,6 +227,37 @@ static esp_err_t app_lcd_i80_init(void)
             HMI_PIN_NUM_DATA14, 
             HMI_PIN_NUM_DATA15);
 
+/*
+esp_lcd_i80_bus_config_t bus_config = {
+    .clk_src = LCD_CLK_SRC_DEFAULT,
+    .dc_gpio_num = HMI_PIN_NUM_DC,
+    .wr_gpio_num = HMI_PIN_NUM_WR,
+    .data_gpio_nums = {
+            HMI_PIN_NUM_DATA0, 
+            HMI_PIN_NUM_DATA1, 
+            HMI_PIN_NUM_DATA2, 
+            HMI_PIN_NUM_DATA3,
+            HMI_PIN_NUM_DATA4, 
+            HMI_PIN_NUM_DATA5, 
+            HMI_PIN_NUM_DATA6, 
+            HMI_PIN_NUM_DATA7,
+
+            HMI_PIN_NUM_DATA8, 
+            HMI_PIN_NUM_DATA9, 
+            HMI_PIN_NUM_DATA10, 
+            HMI_PIN_NUM_DATA11,
+            HMI_PIN_NUM_DATA12, 
+            HMI_PIN_NUM_DATA13, 
+            HMI_PIN_NUM_DATA14, 
+            HMI_PIN_NUM_DATA15,
+    },
+    .bus_width = HMI_LCD_BUS_WIDTH,
+    .max_transfer_bytes = HMI_LCD_H_RES*100*sizeof(uint16_t),
+    .psram_trans_align = 64,
+    .sram_trans_align = 4,
+};
+*/
+
     ESP_ERROR_CHECK(esp_lcd_new_i80_bus(&bus_config, &i80_bus));
 
     ESP_LOGI(TAG, "Install panel IO");
@@ -241,7 +275,8 @@ static esp_err_t app_lcd_i80_init(void)
         },
     };
 
-    //ST7796_PANEL_IO_I80_CONFIG(-1, example_callback, &example_callback_ctx);
+    // TODO: What is expected as callback? 
+    // esp_lcd_panel_io_i80_config_t io_config = ST7796_PANEL_IO_I80_CONFIG(EXAMPLE_PIN_NUM_LCD_CS, example_callback, &example_callback_ctx);
     ESP_ERROR_CHECK(esp_lcd_new_panel_io_i80((esp_lcd_i80_bus_handle_t)i80_bus, &io_config, &lcd_panel_io_handle));
 
     ESP_LOGI(TAG, "Install ST7796 panel driver");
@@ -253,11 +288,11 @@ static esp_err_t app_lcd_i80_init(void)
     ESP_ERROR_CHECK(esp_lcd_new_panel_st7796(lcd_panel_io_handle, &panel_config, &lcd_panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_reset(lcd_panel_handle));
 
-	gpio_reset_pin(HMI_PIN_NUM_TE);
-	gpio_set_direction(HMI_PIN_NUM_TE, GPIO_MODE_INPUT);
+    // TODO: Need to check the use of this mentioned in datasheet
+	// gpio_reset_pin(HMI_PIN_NUM_TE);
+	// gpio_set_direction(HMI_PIN_NUM_TE, GPIO_MODE_INPUT);
 
     ESP_ERROR_CHECK(esp_lcd_panel_init(lcd_panel_handle));
-
     ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(lcd_panel_handle, true));
 
     /* LCD backlight on */
@@ -286,7 +321,7 @@ static esp_err_t app_touch_init(void)
     const esp_lcd_touch_config_t tp_cfg = {
         .x_max = HMI_LCD_H_RES,
         .y_max = HMI_LCD_V_RES,
-        .rst_gpio_num = GPIO_NUM_NC, // Shared with LCD reset
+        .rst_gpio_num = GPIO_NUM_NC, // HMI_PIN_NUM_RESET?
         .int_gpio_num = HMI_PIN_TOUCH_INT,
         .levels = {
             .reset = 0,
@@ -294,8 +329,8 @@ static esp_err_t app_touch_init(void)
         },
         .flags = {
             .swap_xy = 0,
-            .mirror_x = 0,
-            .mirror_y = 0,
+            .mirror_x = 1,
+            .mirror_y = 1,
         },
     };
     esp_lcd_panel_io_handle_t tp_io_handle = NULL;
@@ -347,10 +382,6 @@ static esp_err_t app_lvgl_init(void)
         .handle = touch_handle,
     };
     lvgl_touch_indev = lvgl_port_add_touch(&touch_cfg);
-
-    // Added to fix the touch points
-    esp_lcd_touch_set_mirror_y(touch_handle, true);
-    esp_lcd_touch_set_mirror_x(touch_handle, true);
 
     return ESP_OK;
 }

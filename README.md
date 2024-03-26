@@ -12,9 +12,25 @@ How to use `ESP_LCD` components for Display & Touch with `LVGL 9.x` using `ESP_L
 - **UI Widgets** : [LVGL v9.x](https://components.espressif.com/components/lvgl/lvgl) with custom `lv_conf.h` => Check [CMakeLists.txt](CMakeLists.txt)  
 - **ESP_LVGL_PORT** : [ESP-BSP](https://components.espressif.com/components/espressif/esp_lvgl_port) 
 
-## Support Coming Soon:  
+```bash
+# Build with "WT32-SC01" specific configuration
+idf.py -B build_wt32sc01 -D SDKCONFIG_DEFAULTS="sdkconfig.st7796" build
+idf.py -B build_wt32sc01 -p <PORT> flash monitor
+```
+
+## Work in progress:  
 ![Static Badge](https://img.shields.io/badge/DEVICE-WT32--SC01%20Plus-8A2BE2) ![Static Badge](https://img.shields.io/badge/MCU-ESP32--S3-8A2BE2) ![Static Badge](https://img.shields.io/badge/OS-FreeRTOS-orange) ![Static Badge](https://img.shields.io/badge/SDK-ESP--IDF%20v5.x-blue) ![Static Badge](https://img.shields.io/badge/UI%20WIDGETS-LVGL%209.x-green)  
 ![Static Badge](https://img.shields.io/badge/LCD%20Driver-ESP%20LCD%20ST7796%20[8Bit%20Parellel]-red)  ![Static Badge](https://img.shields.io/badge/TOUCH%20Driver-FT5x06-00FFFF) 
+
+```bash
+# Set the current device target to ESP32-S3
+idf.py -B build_wt32sc01_plus set-target esp32s3
+
+# Build with "WT32-SC01 Plus" specific configuration
+idf.py -B build_wt32sc01_plus -D SDKCONFIG_DEFAULTS="sdkconfig.st7796p8" build
+idf.py -B build_wt32sc01_plus -p <PORT> flash monitor
+```
+
 ##
 ![Static Badge](https://img.shields.io/badge/SPONSORING-blue?style=for-the-badge)    
 
