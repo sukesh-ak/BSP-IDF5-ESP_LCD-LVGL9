@@ -28,12 +28,53 @@ void app_main(void)
     //bsp_display_brightness_set(80); /* Set display brightness percent */
     bsp_display_on();
     
-    // Mount uSD card for testing
+    /* Mount uSD card for testing */
     if (ESP_OK == bsp_sdcard_mount()) {
         sdmmc_card_print_info(stdout, bsp_sdcard);
+
+        /* Write */
         FILE *f = fopen(BSP_SD_MOUNT_POINT "/hello.txt", "w");
         fprintf(f, "Hello %s!\n", bsp_sdcard->cid.name);
         fclose(f);
+
+        /* Read */
+        f = fopen(BSP_SD_MOUNT_POINT "/hello.txt", "r");
+        char line[64];
+        fgets(line, sizeof(line), f);
+        fclose(f);
+
+        // strip newline
+        char* pos = strchr(line, '\n');
+        if (pos) {
+            *pos = '\0';
+        }
+        ESP_LOGI(TAG, "uSD: Read from file: '%s'", line);
+
+        /* unmount */
         bsp_sdcard_unmount();
+    }
+
+    /* Mount SPIFF partition and read readme.txt */
+    if (ESP_OK == bsp_spiffs_mount()) 
+    {
+        /* Read */
+        FILE *f = fopen(BSP_SPIFFS_MOUNT_POINT "/readme.txt", "r");
+        if (f == NULL) {
+            ESP_LOGE(TAG, "Failed to open /spiffs/readme.txt");
+            return;
+        }
+        char line[64];
+        fgets(line, sizeof(line), f);
+        fclose(f);
+
+        // strip newline
+        char* pos = strchr(line, '\n');
+        if (pos) {
+            *pos = '\0';
+        }
+        ESP_LOGI(TAG, "SPIFF: Read from file: '%s'", line);
+
+        /* Unmount */        
+        bsp_spiffs_unmount();
     }
 }
