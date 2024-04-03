@@ -30,6 +30,16 @@ idf.py -p <PORT> flash monitor
 ```
 
 
+##
+[![Github sponsor](https://img.shields.io/static/v1?label=Click%20here%20to%20Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23FF007F&style=for-the-badge)](https://github.com/sponsors/sukesh-ak)  
+
+If you use my projects or like them, consider sponsoring me. Anything helps and encourages me to keep going.  
+See details here: https://github.com/sponsors/sukesh-ak  
+
+Your sponsorship would help me not only to maintain the projects I'm involved in, but also support my other community activities and purchase hardware for testing these libraries. If you're an individual user who has enjoyed my projects or benefited from my community work, please consider donating as a sign of appreciation. If you run a business that uses my work in your products, sponsoring my development makes good business sense: it ensures that the projects your product relies on stay healthy and actively maintained.
+
+Thank you for considering supporting my work!
+
 ## BSP for WT32-SC01 [ESP32] (Work in progress):  
 ![Static Badge](https://img.shields.io/badge/DEVICE-WT32--SC01-8A2BE2) ![Static Badge](https://img.shields.io/badge/MCU-ESP32-8A2BE2) 
 ![Static Badge](https://img.shields.io/badge/OS-FreeRTOS-orange) ![Static Badge](https://img.shields.io/badge/SDK-ESP--IDF%20v5.x-blue) ![Static Badge](https://img.shields.io/badge/UI%20WIDGETS-LVGL%209.x-green)   
@@ -46,13 +56,3 @@ idf.py -p <PORT> flash monitor
 idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.st7796" build
 idf.py -p <PORT> flash monitor
 ```
-
-##
-![Static Badge](https://img.shields.io/badge/SPONSORING-blue?style=for-the-badge)    
-
-If you use my projects or like them, consider sponsoring me. Anything helps and encourages me to keep going.  
-See details here: https://github.com/sponsors/sukesh-ak  
-
-Your sponsorship would help me not only to maintain the projects I'm involved in, but also support my other community activities and purchase hardware for testing these libraries. If you're an individual user who has enjoyed my projects or benefited from my community work, please consider donating as a sign of appreciation. If you run a business that uses my work in your products, sponsoring my development makes good business sense: it ensures that the projects your product relies on stay healthy and actively maintained.
-
-Thank you for considering supporting my work!
