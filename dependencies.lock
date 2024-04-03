@@ -43,9 +43,9 @@ dependencies:
   wt32sc01plus:
     component_hash: null
     source:
-      path: D:\Dev\ESP32\IDF-ESP_LCD-LVGL\components\wt32sc01plus
+      path: D:\Dev\ESP32\IDF5-ESP_LCD-LVGL9\components\wt32sc01plus
       type: local
     version: 1.0.0
-manifest_hash: 187a15adaf9a1e13833c2ee67628a1fa6a741e8ec40ed893b5a6937833fbb984
+manifest_hash: 42d1de0ea983598e4de664c1110472828fb4ccae183e9f4ccdcf9c6a9c34571b
 target: esp32s3
 version: 1.0.0
