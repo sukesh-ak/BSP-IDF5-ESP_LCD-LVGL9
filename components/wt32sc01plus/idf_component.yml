@@ -1,6 +1,9 @@
 version: "1.0.0"
-description: BSP for WT32-SC01 Plus
-url: https://github.com/sukesh-ak
+description: BSP for WT32-SC01 Plus from Wireless Tag
+url: https://github.com/sukesh-ak/IDF5-ESP_LCD-LVGL9
+
+tags:
+  - bsp
 
 dependencies:
   idf: ">=5.0"

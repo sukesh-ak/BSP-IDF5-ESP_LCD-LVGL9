@@ -71,6 +71,20 @@
 extern "C" {
 #endif
 
+/**
+ * @brief BSP display configuration structure
+ *
+ */
+typedef struct {
+    lvgl_port_cfg_t lvgl_port_cfg;  /*!< LVGL port configuration */
+    uint32_t        buffer_size;    /*!< Size of the buffer for the screen in pixels */
+    bool            double_buffer;  /*!< True, if should be allocated two buffers */
+    struct {
+        unsigned int buff_dma: 1;    /*!< Allocated LVGL buffer will be DMA capable */
+        unsigned int buff_spiram: 1; /*!< Allocated LVGL buffer will be in PSRAM */
+    } flags;
+} bsp_display_cfg_t;
+
 esp_err_t bsp_i2c_init(void);
 esp_err_t bsp_i2c_deinit(void);
 
@@ -84,7 +98,7 @@ esp_err_t bsp_sdcard_mount(void);
 esp_err_t bsp_sdcard_unmount(void);
 
 lv_display_t *bsp_display_start(void);
-//lv_display_t *bsp_display_start_with_config(const bsp_display_cfg_t *cfg);
+lv_display_t *bsp_display_start_with_config(const bsp_display_cfg_t *cfg);
 lv_indev_t *bsp_display_get_input_dev(void);
 bool bsp_display_lock(uint32_t timeout_ms);
 void bsp_display_unlock(void);

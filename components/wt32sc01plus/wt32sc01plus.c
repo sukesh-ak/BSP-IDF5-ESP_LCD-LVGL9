@@ -230,7 +230,7 @@ lv_display_t *bsp_display_start(void)
     esp_lcd_panel_mirror(panel_handle, true, false);
 
     // user can flush pre-defined pattern to the screen before we turn on the screen or backlight
-    // BSP_ERROR_CHECK_RETURN_NULL(esp_lcd_panel_disp_on_off(panel_handle, false));
+    BSP_ERROR_CHECK_RETURN_NULL(esp_lcd_panel_disp_on_off(panel_handle, false));
 
     /* Add LCD screen */
     ESP_LOGD(TAG, "Add LCD screen");
@@ -256,14 +256,39 @@ lv_display_t *bsp_display_start(void)
         }
     };
 
+/*
+    bsp_display_cfg_t cfg = {
+        .lvgl_port_cfg = ESP_LVGL_PORT_INIT_CONFIG(),
+        .double_buffer = true,
+        .flags = {
+            .buff_dma = true,
+            .buff_spiram = false,
+        }
+    };
+
+    return bsp_display_start_with_config(&cfg);
+*/
+
     const lvgl_port_cfg_t lvgl_cfg = ESP_LVGL_PORT_INIT_CONFIG();
     BSP_ERROR_CHECK_RETURN_NULL(lvgl_port_init(&lvgl_cfg));
     BSP_NULL_CHECK(disp = lvgl_port_add_disp(&disp_cfg), NULL);
     BSP_NULL_CHECK(disp_indev = bsp_display_indev_init(disp),NULL);
 
-BSP_ERROR_CHECK_RETURN_NULL(bsp_display_brightness_init());
+    BSP_ERROR_CHECK_RETURN_NULL(bsp_display_brightness_init());
     return disp;    
 }
+
+/*
+lv_disp_t *bsp_display_start_with_config(const bsp_display_cfg_t *cfg)
+{
+    assert(cfg != NULL);
+    BSP_ERROR_CHECK_RETURN_NULL(lvgl_port_init(&cfg->lvgl_port_cfg));
+    BSP_ERROR_CHECK_RETURN_NULL(bsp_display_brightness_init());
+    BSP_NULL_CHECK(disp = bsp_display_lcd_init(cfg), NULL);
+    BSP_NULL_CHECK(disp_indev = bsp_display_indev_init(disp), NULL);
+    return disp;
+}
+*/
 
 lv_indev_t *bsp_display_get_input_dev(void)
 {

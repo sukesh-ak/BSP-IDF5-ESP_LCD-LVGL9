@@ -18,13 +18,14 @@ void app_main(void)
 
     ESP_LOGI(TAG, "Display LVGL UI");
 
-    bsp_display_backlight_off();    /* Display OFF */
-    bsp_display_lock(0);    /* Lock exclusive */
-    app_main_display();     /* Show LVGL objects */
-    bsp_display_unlock();   /* Unlock */
+    bsp_display_off();
+    bsp_display_backlight_off();    /* Backlight to 0 */
+    bsp_display_lock(0);            /* Lock exclusive */
+    app_main_display();             /* Show LVGL objects */
+    bsp_display_unlock();           /* Unlock */
     
-    //bsp_display_backlight_on();     /* Display ON */
-    bsp_display_brightness_set(80); /* Set display brightness percent */
+    bsp_display_backlight_on();     /* Backlight to 100 */
+    //bsp_display_brightness_set(80); /* Set display brightness percent */
     bsp_display_on();
     
     // Mount uSD card for testing

@@ -1,5 +1,9 @@
 #include "lvgl.h"
 #include "esp_lvgl_port.h"
+#include "others/observer/lv_observer.h"
+#include "bsp/wt32sc01plus.h"
+
+lv_subject_t brightness_subject;
 
 LV_IMG_DECLARE(emoji);   
 
@@ -15,11 +19,34 @@ static void _app_button_cb(lv_event_t *e)
     lv_display_set_rotation(lv_display_get_default(), rotation);
 }
 
+static void brightness_observer_cb(lv_observer_t * observer, lv_subject_t * subject)
+{
+    int32_t brightness_percent = lv_subject_get_int(subject);
+    bsp_display_brightness_set(brightness_percent);
+}
+
 void app_main_display()
 {
     lv_obj_t *scr = lv_screen_active();
 
-    /* Your LVGL objects code here .... */
+    /* DEMO of using LVGL lv_observer features below */
+
+    // Initialize lv_subject into int (int32_t) type
+    lv_subject_init_int(&brightness_subject, 80);
+
+    /*Create a slider in the center of the display*/
+    lv_obj_t * slider = lv_slider_create(lv_screen_active());
+    lv_obj_align(slider,LV_ALIGN_CENTER,0,10);
+    lv_slider_bind_value(slider, &brightness_subject);                  // Bind slider value with the lv_subject
+    lv_obj_set_style_anim_duration(slider, 2000, 0);
+
+    /*Create a label below the slider*/
+    lv_obj_t * slider_label = lv_label_create(lv_screen_active());
+    lv_obj_align_to(slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+    lv_label_bind_text(slider_label, &brightness_subject, "%d %%");     // Bind label text with lv_subject
+
+    // Add lv_observer with a callback when the value changes
+    lv_subject_add_observer_obj(&brightness_subject, brightness_observer_cb, NULL, NULL);
 
     /* Emoji - image */
     lv_obj_t *img_emoji = lv_image_create(scr);
