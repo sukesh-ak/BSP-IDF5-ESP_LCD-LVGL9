@@ -35,11 +35,17 @@ dependencies:
       type: idf
     version: 5.1.2
   lvgl/lvgl:
-    component_hash: da37debfb77b23833a71be7edcb36af7176d2b1d4896f5caa015fd912beb02d1
+    component_hash: 2a8f619b5c2b1c7ad116c33d43dae8989c76739068f406a7e8ba9221e1085f17
     source:
       service_url: https://api.components.espressif.com/
       type: service
-    version: 9.0.0
-manifest_hash: 5855b8cb1f8de31de7afa43b87be5c5ff4b36421abf00c8564c8617fc2605c9c
+    version: 9.1.0
+  wt32sc01plus:
+    component_hash: null
+    source:
+      path: D:\Dev\ESP32\IDF-ESP_LCD-LVGL\components\wt32sc01plus
+      type: local
+    version: 0.0.1
+manifest_hash: e4d2df0089a20786c61393e71f70cee4bee00112c3153e05e83dacb56b5a8461
 target: esp32s3
 version: 1.0.0

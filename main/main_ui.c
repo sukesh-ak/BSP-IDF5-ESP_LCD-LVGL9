@@ -19,9 +19,6 @@ void app_main_display()
 {
     lv_obj_t *scr = lv_screen_active();
 
-    /* Task lock */
-    lvgl_port_lock(0);
-
     /* Your LVGL objects code here .... */
 
     /* Emoji - image */
@@ -46,7 +43,4 @@ void app_main_display()
     lv_label_set_text_static(label, "Rotate screen");
     lv_obj_align(btn, LV_ALIGN_BOTTOM_MID, 0, -50);
     lv_obj_add_event_cb(btn, _app_button_cb, LV_EVENT_CLICKED, NULL);
-
-    /* Task unlock */
-    lvgl_port_unlock();
 }
