@@ -19,6 +19,9 @@ static const char *TAG = "WT32SC01_Plus";
 static lv_display_t *disp;
 static lv_indev_t *disp_indev = NULL;
 static esp_lcd_touch_handle_t tp;   // LCD touch handle
+static esp_lcd_panel_handle_t panel_handle = NULL;
+
+sdmmc_card_t *bsp_sdcard = NULL;
 
 esp_err_t bsp_i2c_init(void) {
     const i2c_config_t i2c_conf = {
@@ -27,7 +30,7 @@ esp_err_t bsp_i2c_init(void) {
         .sda_pullup_en = GPIO_PULLUP_ENABLE,
         .scl_io_num = BSP_I2C_SCL,
         .scl_pullup_en = GPIO_PULLUP_ENABLE,
-        .master.clk_speed = BSP_I2C_CLK_SPEED_HZ
+        .master.clk_speed = CONFIG_BSP_I2C_CLK_SPEED_HZ
     };
     /* Initialize I2C */
     BSP_ERROR_CHECK_RETURN_ERR(i2c_param_config(BSP_I2C_NUM, &i2c_conf));
@@ -36,6 +39,50 @@ esp_err_t bsp_i2c_init(void) {
 
     return ESP_OK;
 }
+
+esp_err_t bsp_i2c_deinit(void) {
+    BSP_ERROR_CHECK_RETURN_ERR(i2c_driver_delete(BSP_I2C_NUM));
+    ESP_LOGI(TAG, "De-Initialize touch IO (I2C)");
+    return ESP_OK;
+}
+
+esp_err_t bsp_sdcard_mount(void)
+{
+    const esp_vfs_fat_sdmmc_mount_config_t mount_config = {
+#ifdef CONFIG_BSP_SD_FORMAT_ON_MOUNT_FAIL
+        .format_if_mount_failed = true,
+#else
+        .format_if_mount_failed = false,
+#endif
+        .max_files = 5,
+        .allocation_unit_size = 16 * 1024
+    };
+
+    const sdmmc_host_t host = SDSPI_HOST_DEFAULT();
+    const spi_bus_config_t bus_cfg = {
+        .mosi_io_num = BSP_SD_MOSI,
+        .miso_io_num = BSP_SD_MISO,
+        .sclk_io_num = BSP_SD_SCLK,
+        .quadwp_io_num = -1,
+        .quadhd_io_num = -1,
+        .max_transfer_sz = 4000,
+    };
+    BSP_ERROR_CHECK_RETURN_ERR(spi_bus_initialize(host.slot, &bus_cfg, SDSPI_DEFAULT_DMA));
+    
+    // This initializes the slot without card detect (CD) and write protect (WP) signals.
+    // Modify slot_config.gpio_cd and slot_config.gpio_wp if your board has these signals.
+    sdspi_device_config_t slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();
+    slot_config.gpio_cs = BSP_SD_CS;
+    slot_config.host_id = host.slot;
+
+    return esp_vfs_fat_sdspi_mount(BSP_SD_MOUNT_POINT, &host, &slot_config, &mount_config, &bsp_sdcard);
+}
+
+esp_err_t bsp_sdcard_unmount(void)
+{
+    return esp_vfs_fat_sdcard_unmount(BSP_SD_MOUNT_POINT, bsp_sdcard);
+}
+
 
 lv_indev_t *bsp_display_indev_init(lv_display_t *disp) {
 
@@ -51,11 +98,6 @@ lv_indev_t *bsp_display_indev_init(lv_display_t *disp) {
     return lvgl_port_add_touch(&touch_cfg);    
 }
 
-esp_err_t bsp_i2c_deinit(void) {
-    BSP_ERROR_CHECK_RETURN_ERR(i2c_driver_delete(BSP_I2C_NUM));
-    ESP_LOGI(TAG, "De-Initialize touch IO (I2C)");
-    return ESP_OK;
-}
 
 static esp_err_t bsp_display_brightness_init(void)
 {
@@ -83,6 +125,17 @@ static esp_err_t bsp_display_brightness_init(void)
     return ESP_OK;
 }
 
+esp_err_t bsp_display_on(void)
+{
+    BSP_ERROR_CHECK_RETURN_NULL(esp_lcd_panel_disp_on_off(panel_handle, true));
+    return ESP_OK;
+}
+
+esp_err_t bsp_display_off(void)
+{
+    BSP_ERROR_CHECK_RETURN_NULL(esp_lcd_panel_disp_on_off(panel_handle, false));
+    return ESP_OK;
+}
 
 esp_err_t bsp_display_brightness_set(int percent)
 {
@@ -113,7 +166,7 @@ esp_err_t bsp_display_backlight_on(void)
 
 lv_display_t *bsp_display_start(void) 
 {
-    BSP_ERROR_CHECK_RETURN_NULL(bsp_display_brightness_init());
+    
     ESP_LOGD(TAG, "Initialize Intel 8080 bus");
     /* Init Intel 8080 bus */
     esp_lcd_i80_bus_handle_t i80_bus = NULL;
@@ -160,7 +213,7 @@ lv_display_t *bsp_display_start(void)
     BSP_ERROR_CHECK_RETURN_NULL(esp_lcd_new_panel_io_i80(i80_bus, &io_config, &io_handle));
 
     ESP_LOGD(TAG, "Install LCD driver of ST7796");
-    esp_lcd_panel_handle_t panel_handle = NULL;
+    //esp_lcd_panel_handle_t panel_handle = NULL;
     esp_lcd_panel_dev_config_t panel_config = {
         .reset_gpio_num = BSP_LCD_RST,
         .rgb_endian = LCD_RGB_ENDIAN_BGR,
@@ -177,7 +230,7 @@ lv_display_t *bsp_display_start(void)
     esp_lcd_panel_mirror(panel_handle, true, false);
 
     // user can flush pre-defined pattern to the screen before we turn on the screen or backlight
-    BSP_ERROR_CHECK_RETURN_NULL(esp_lcd_panel_disp_on_off(panel_handle, true));
+    // BSP_ERROR_CHECK_RETURN_NULL(esp_lcd_panel_disp_on_off(panel_handle, false));
 
     /* Add LCD screen */
     ESP_LOGD(TAG, "Add LCD screen");
@@ -197,6 +250,9 @@ lv_display_t *bsp_display_start(void)
         },
         .flags = {
             .buff_dma = true,
+            .buff_spiram = false,
+            //.sw_rotate = 
+            //.swap_bytes
         }
     };
 
@@ -205,6 +261,7 @@ lv_display_t *bsp_display_start(void)
     BSP_NULL_CHECK(disp = lvgl_port_add_disp(&disp_cfg), NULL);
     BSP_NULL_CHECK(disp_indev = bsp_display_indev_init(disp),NULL);
 
+BSP_ERROR_CHECK_RETURN_NULL(bsp_display_brightness_init());
     return disp;    
 }
 

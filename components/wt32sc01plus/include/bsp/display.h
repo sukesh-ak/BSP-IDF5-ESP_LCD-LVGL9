@@ -50,6 +50,10 @@ esp_err_t bsp_display_brightness_set(int brightness_percent);
 esp_err_t bsp_display_backlight_on(void);
 esp_err_t bsp_display_backlight_off(void);
 
+esp_err_t bsp_display_on(void);
+esp_err_t bsp_display_off(void);
+
+
 #ifdef __cplusplus
 }
 #endif

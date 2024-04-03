@@ -14,10 +14,8 @@
 #include "bsp/touch.h"
 #include "driver/i2s_std.h"
 
-#if (BSP_CONFIG_NO_GRAPHIC_LIB == 0)
 #include "lvgl.h"
 #include "esp_lvgl_port.h"
-#endif // BSP_CONFIG_NO_GRAPHIC_LIB == 0
 
 /**************************************************************************************************
  *  BSP Capabilities
@@ -47,15 +45,15 @@
 #define BSP_LCD_DATA6         (GPIO_NUM_16)
 #define BSP_LCD_DATA7         (GPIO_NUM_15)
 
-#define BSP_LCD_CS           (GPIO_NUM_NC) //
-#define BSP_LCD_DC           (GPIO_NUM_0)  // Command/Data selection
-#define BSP_LCD_WR           (GPIO_NUM_47) // Write clock
-#define BSP_LCD_RD           (GPIO_NUM_NC) // 
-#define BSP_LCD_RST          (GPIO_NUM_4)  // LCD reset, multiplexed with touch reset
-#define BSP_LCD_TE           (GPIO_NUM_48) // Frame sync
-#define BSP_LCD_BACKLIGHT    (GPIO_NUM_45) // Backlight control, active high
-#define BSP_LCD_TP_INT       (GPIO_NUM_7)  // Touch interrupt
-#define BSP_LCD_TP_RST       (GPIO_NUM_NC) // Disable (GPIO_NUM_4)  // Touch reset, multiplexed with LCD reset. 
+#define BSP_LCD_CS           (GPIO_NUM_NC) 
+#define BSP_LCD_DC           (GPIO_NUM_0)  
+#define BSP_LCD_WR           (GPIO_NUM_47) 
+#define BSP_LCD_RD           (GPIO_NUM_NC) 
+#define BSP_LCD_RST          (GPIO_NUM_4)  
+#define BSP_LCD_TE           (GPIO_NUM_48) 
+#define BSP_LCD_BACKLIGHT    (GPIO_NUM_45) 
+#define BSP_LCD_TP_INT       (GPIO_NUM_7)  
+#define BSP_LCD_TP_RST       (GPIO_NUM_NC) 
 
 #define LCD_CMD_BITS           8
 #define LCD_PARAM_BITS         8
@@ -66,7 +64,7 @@
 /* SD card */
 #define BSP_SD_MOSI           (GPIO_NUM_40)
 #define BSP_SD_MISO           (GPIO_NUM_38)
-#define BSP_SD_SCK            (GPIO_NUM_39)
+#define BSP_SD_SCLK           (GPIO_NUM_39)
 #define BSP_SD_CS             (GPIO_NUM_41)
 
 #ifdef __cplusplus
@@ -80,13 +78,11 @@ esp_err_t bsp_i2c_deinit(void);
 esp_err_t bsp_spiffs_mount(void);
 esp_err_t bsp_spiffs_unmount(void);
 
-#define BSP_SD_MOUNT_POINT      CONFIG_BSP_SD_MOUNT_POINT
+#define BSP_SD_MOUNT_POINT          CONFIG_BSP_SD_MOUNT_POINT
 extern sdmmc_card_t *bsp_sdcard;
-
 esp_err_t bsp_sdcard_mount(void);
 esp_err_t bsp_sdcard_unmount(void);
 
-#if (BSP_CONFIG_NO_GRAPHIC_LIB == 0)
 lv_display_t *bsp_display_start(void);
 //lv_display_t *bsp_display_start_with_config(const bsp_display_cfg_t *cfg);
 lv_indev_t *bsp_display_get_input_dev(void);
@@ -94,7 +90,6 @@ bool bsp_display_lock(uint32_t timeout_ms);
 void bsp_display_unlock(void);
 
 void bsp_display_rotate(lv_display_t *disp, lv_display_rotation_t rotation);
-#endif // BSP_CONFIG_NO_GRAPHIC_LIB == 0
 
 #ifdef __cplusplus
 }

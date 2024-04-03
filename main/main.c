@@ -2,8 +2,8 @@
 #include "freertos/task.h"
 #include "esp_log.h"
 
-#include "lv_demos.h"
 #include "bsp/esp-bsp.h"
+#include "sdmmc_cmd.h"
 
 static const char *TAG = "HMI";
 
@@ -18,13 +18,21 @@ void app_main(void)
 
     ESP_LOGI(TAG, "Display LVGL UI");
 
-    bsp_display_backlight_off();
-
+    bsp_display_backlight_off();    /* Display OFF */
     bsp_display_lock(0);    /* Lock exclusive */
     app_main_display();     /* Show LVGL objects */
     bsp_display_unlock();   /* Unlock */
-
+    
+    //bsp_display_backlight_on();     /* Display ON */
     bsp_display_brightness_set(80); /* Set display brightness percent */
-
-    bsp_display_backlight_on();
+    bsp_display_on();
+    
+    // Mount uSD card for testing
+    if (ESP_OK == bsp_sdcard_mount()) {
+        sdmmc_card_print_info(stdout, bsp_sdcard);
+        FILE *f = fopen(BSP_SD_MOUNT_POINT "/hello.txt", "w");
+        fprintf(f, "Hello %s!\n", bsp_sdcard->cid.name);
+        fclose(f);
+        bsp_sdcard_unmount();
+    }
 }

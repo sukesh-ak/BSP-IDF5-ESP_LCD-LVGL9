@@ -45,7 +45,7 @@ dependencies:
     source:
       path: D:\Dev\ESP32\IDF-ESP_LCD-LVGL\components\wt32sc01plus
       type: local
-    version: 0.0.1
-manifest_hash: e4d2df0089a20786c61393e71f70cee4bee00112c3153e05e83dacb56b5a8461
+    version: 1.0.0
+manifest_hash: dc3d74c28d79fd7c6932ee1bae39242a06dcafc4b05f8d6d1e761454ad3b5b23
 target: esp32s3
 version: 1.0.0
