@@ -3,7 +3,7 @@ How to use `ESP_LCD` components for Display & Touch with `LVGL 9.x` using `ESP_L
 **[Espressif Component Registry](https://components.espressif.com/)**
 
 
-## BSP for WT32-SC01 Plus [ESP32-S3]:  
+## BSP for Wireless Tag WT32-SC01 Plus [ESP32-S3]:  
 [![Purchase link](https://img.shields.io/static/v1?label=Click%20here%20to%20Purchase&message=WT32-SC01%20PLUS&logo=alibabadotcom&color=00A226&style=for-the-badge)](https://bit.ly/wt32-sc01-plus) 
 
 ![Static Badge](https://img.shields.io/badge/DEVICE-WT32--SC01%20Plus-8A2BE2) ![Static Badge](https://img.shields.io/badge/MCU-ESP32--S3-8A2BE2) ![Static Badge](https://img.shields.io/badge/OS-FreeRTOS-orange) ![Static Badge](https://img.shields.io/badge/SDK-ESP--IDF%20v5.x-blue) ![Static Badge](https://img.shields.io/badge/UI%20WIDGETS-LVGL%209.x-green)  
@@ -44,7 +44,7 @@ Your sponsorship would help me not only to maintain the projects I'm involved in
 
 Thank you for considering supporting my work!
 
-## BSP for WT32-SC01 [ESP32] (Work in progress):  
+## BSP for Wireless Tag WT32-SC01 [ESP32] (Work in progress):  
 ![Static Badge](https://img.shields.io/badge/DEVICE-WT32--SC01-8A2BE2) ![Static Badge](https://img.shields.io/badge/MCU-ESP32-8A2BE2) 
 ![Static Badge](https://img.shields.io/badge/OS-FreeRTOS-orange) ![Static Badge](https://img.shields.io/badge/SDK-ESP--IDF%20v5.x-blue) ![Static Badge](https://img.shields.io/badge/UI%20WIDGETS-LVGL%209.x-green)   
 ![Static Badge](https://img.shields.io/badge/LCD%20Driver-ESP%20LCD%20ST7796%20[SPI]-red) ![Static Badge](https://img.shields.io/badge/TOUCH%20Driver-FT5x06-00FFFF)
