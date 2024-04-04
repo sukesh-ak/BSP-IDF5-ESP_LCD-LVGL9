@@ -34,7 +34,7 @@ idf.py -p <PORT> flash monitor
 
 
 ##
-[![Github Sponsor](https://img.shields.io/badge/label-%E2%9D%A4-FF007F?style=for-the-badge&logo=github&label=CLICK%20HERE%20TO%20SPONSOR&labelColor=blue&color=FF007F
+[![Github Sponsor](https://img.shields.io/badge/label-%E2%9D%A4-FF007F?style=for-the-badge&logo=github&label=CLICK%20HERE%20TO%20SPONSOR%20ME&labelColor=blue&color=FF007F
 )](https://github.com/sponsors/sukesh-ak)    
 
 If you use my projects or like them, consider sponsoring me. Anything helps and encourages me to keep going.  
