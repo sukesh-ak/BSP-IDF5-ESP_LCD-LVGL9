@@ -28,7 +28,7 @@ Dependencies:
 idf.py set-target esp32s3
 
 # Build with "WT32-SC01 Plus" specific configuration
-idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.st7796p8" build
+idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.wt32sc01plus" build
 idf.py -p <PORT> flash monitor
 ```
 
@@ -57,7 +57,7 @@ Thank you for considering supporting my work!
 
 ```bash
 # Build with "WT32-SC01" specific configuration
-idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.st7796" build
+idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.wt32sc01" build
 idf.py -p <PORT> flash monitor
 ```
 ## BSP TODO LIST
