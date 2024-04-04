@@ -23,6 +23,9 @@ Dependencies:
 - **UI Widgets** : [LVGL v9.x](https://components.espressif.com/components/lvgl/lvgl) with custom `lv_conf.h` => Check [CMakeLists.txt](CMakeLists.txt)  
 - **ESP_LVGL_PORT** : [ESP-BSP](https://components.espressif.com/components/espressif/esp_lvgl_port) 
 
+> [!IMPORTANT]  
+> Make sure to uncheck `Check this to not use custom lv_conf.h` under `Component config > LVGL configuration` with `idf.py menuconfig`.
+
 ```bash
 # Set the current device target to ESP32-S3
 idf.py set-target esp32s3
