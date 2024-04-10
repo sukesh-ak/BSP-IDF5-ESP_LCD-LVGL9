@@ -1,6 +1,7 @@
+## IDF Component Manager Manifest File
+description: ESP BSP Sample for TFT Touch Displays
 dependencies:
   idf: ">=5.0"
   wt32sc01plus:
     path: ../components
     version: ^1.0.0
-    

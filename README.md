@@ -1,5 +1,7 @@
 # BSP (Board Support Package) using ESP-IDF 5.x + ESP_LCD + LVGL 9.x
 How to use `ESP_LCD` components for Display & Touch with `LVGL 9.x` using `ESP_LVGL_PORT` from `ESP-BSP`.  
+
+Discover, download and publish components and examples for ESP-IDF - 
 **[Espressif Component Registry](https://components.espressif.com/)**
 
 
