@@ -31,9 +31,6 @@ Dependencies:
 > Make sure to uncheck `Check this to not use custom lv_conf.h` under `Component config > LVGL configuration` with `idf.py menuconfig`.
 
 ```bash
-# Set the current device target to ESP32-S3
-idf.py set-target esp32s3
-
 # Build with "WT32-SC01 Plus" specific configuration
 idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.wt32sc01plus" build
 idf.py -p <PORT> flash monitor
